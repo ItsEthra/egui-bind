@@ -11,7 +11,8 @@ impl App for ExampleApp {
     fn update(&mut self, ctx: &Context, _: &mut Frame) {
         Window::new("Example")
             .show(ctx, |ui| {
-                ui.add(Hotkey::new("_test", &mut self.bind));
+                Hotkey::new("_test", &mut self.bind)
+                    .show(ui);
             });
     }
 }
