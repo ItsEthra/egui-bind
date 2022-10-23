@@ -1,0 +1,13 @@
+[package]
+name = "egui-bind"
+version = "0.1.0"
+edition = "2021"
+description = "Library for storing user binds"
+license = "MIT"
+authors = ["ItsEthra"]
+
+[dependencies]
+egui = "0.19"
+
+[dev-dependencies]
+eframe = "0.19"
