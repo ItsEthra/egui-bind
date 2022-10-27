@@ -4,14 +4,14 @@ use std::ops::Deref;
 
 /// Bind target that can be either a [`egui::Key`] or a [`egui::PointerButton`]
 #[derive(Debug, Clone)]
-pub enum KeyPointerTarget {
+pub enum KeyOrPointer {
     /// Key bind
     Key(Key),
     /// Pointer bind
     Pointer(PointerButton),
 }
 
-impl BindTarget for KeyPointerTarget {
+impl BindTarget for KeyOrPointer {
     const IS_KEY: bool = true;
     const IS_POINTER: bool = true;
     const CLEARABLE: bool = false;
@@ -57,17 +57,17 @@ impl BindTarget for KeyPointerTarget {
     }
 }
 
-impl BindTarget for Option<KeyPointerTarget> {
+impl BindTarget for Option<KeyOrPointer> {
     const IS_KEY: bool = true;
     const IS_POINTER: bool = true;
     const CLEARABLE: bool = true;
 
     fn set_key(&mut self, key: Key, _: Modifiers) {
-        *self = Some(KeyPointerTarget::Key(key));
+        *self = Some(KeyOrPointer::Key(key));
     }
 
     fn set_pointer(&mut self, button: PointerButton, _: Modifiers) {
-        *self = Some(KeyPointerTarget::Pointer(button));
+        *self = Some(KeyOrPointer::Pointer(button));
     }
 
     fn clear(&mut self) {
@@ -76,8 +76,8 @@ impl BindTarget for Option<KeyPointerTarget> {
 
     fn format(&self) -> String {
         match self {
-            Some(KeyPointerTarget::Key(k)) => k.format(),
-            Some(KeyPointerTarget::Pointer(p)) => p.format(),
+            Some(KeyOrPointer::Key(k)) => k.format(),
+            Some(KeyOrPointer::Pointer(p)) => p.format(),
             None => "None".into()
         }
     }
