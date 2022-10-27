@@ -28,7 +28,8 @@ impl<'a, B: BindTarget> Bind<'a, B> {
 impl<B: BindTarget> Bind<'_, B> {
     /// Shows the bind widget
     pub fn show(self, ui: &mut Ui) -> bool {
-        let changing = ui.memory().data.get_temp(self.id).unwrap_or(false);
+        let id = ui.make_persistent_id(self.id);
+        let changing = ui.memory().data.get_temp(id).unwrap_or(false);
 
         let mut size = ui.spacing().interact_size;
         size.x *= 1.25;
@@ -68,13 +69,13 @@ impl<B: BindTarget> Bind<'_, B> {
             };
 
             if updated {
-                ui.memory().data.insert_temp(self.id, false);
+                ui.memory().data.insert_temp(id, false);
                 return true;
             }
         }
 
         if r.clicked() {
-            ui.memory().data.insert_temp(self.id, true);
+            ui.memory().data.insert_temp(id, true);
         }
 
         false
