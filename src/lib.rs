@@ -1,7 +1,7 @@
 #![doc = include_str!("../README.md")]
 #![warn(missing_docs)]
 
-use egui::{Ui, Key, Id, Event, Sense, Rounding, Align2, FontId};
+use egui::{Align2, Event, FontId, Id, Key, Rounding, Sense, Ui};
 use std::hash::Hash;
 
 mod target;
@@ -12,7 +12,7 @@ pub use either::*;
 /// Widget for showing the bind itself
 pub struct Bind<'a, B: BindTarget> {
     id: Id,
-    value: &'a mut B
+    value: &'a mut B,
 }
 
 impl<'a, B: BindTarget> Bind<'a, B> {
@@ -20,7 +20,7 @@ impl<'a, B: BindTarget> Bind<'a, B> {
     pub fn new(id_source: impl Hash, value: &'a mut B) -> Self {
         Self {
             id: Id::new(id_source),
-            value
+            value,
         }
     }
 }
@@ -44,16 +44,27 @@ impl<B: BindTarget> Bind<'_, B> {
             Align2::CENTER_CENTER,
             self.value.format(),
             FontId::default(),
-            vis.fg_stroke.color
+            vis.fg_stroke.color,
         );
 
         if changing {
-            let key = ui.input().events.iter()
-                .find(|e| matches!(e, Event::Key { pressed: true, .. } | Event::PointerButton { pressed: true, .. }))
+            let key = ui
+                .input()
+                .events
+                .iter()
+                .find(|e| {
+                    matches!(
+                        e,
+                        Event::Key { pressed: true, .. }
+                            | Event::PointerButton { pressed: true, .. }
+                    )
+                })
                 .cloned();
 
             let updated = match key {
-                Some(Event::Key { key: Key::Escape, .. }) if B::CLEARABLE => {
+                Some(Event::Key {
+                    key: Key::Escape, ..
+                }) if B::CLEARABLE => {
                     self.value.clear();
                     true
                 }
@@ -61,11 +72,13 @@ impl<B: BindTarget> Bind<'_, B> {
                     self.value.set_key(key, modifiers);
                     true
                 }
-                Some(Event::PointerButton { button, modifiers, .. }) if B::IS_POINTER => {
+                Some(Event::PointerButton {
+                    button, modifiers, ..
+                }) if B::IS_POINTER => {
                     self.value.set_pointer(button, modifiers);
                     true
                 }
-                _ => false
+                _ => false,
             };
 
             if updated {
@@ -81,4 +94,3 @@ impl<B: BindTarget> Bind<'_, B> {
         false
     }
 }
-

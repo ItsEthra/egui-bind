@@ -1,5 +1,8 @@
-use std::{mem::{zeroed, transmute, discriminant}, ops::Deref};
-use egui::{Key, Modifiers, PointerButton, InputState};
+use egui::{InputState, Key, Modifiers, PointerButton};
+use std::{
+    mem::{discriminant, transmute, zeroed},
+    ops::Deref,
+};
 
 /// Type that can be used as a bind target
 pub trait BindTarget: Clone {
@@ -75,7 +78,7 @@ impl BindTarget for Key {
     }
 
     fn released(&self, input: impl Deref<Target = InputState>) -> bool {
-        input.key_released(*self) 
+        input.key_released(*self)
     }
 }
 
@@ -103,7 +106,9 @@ impl BindTarget for Option<Key> {
     }
 
     fn format(&self) -> String {
-        self.as_ref().map(BindTarget::format).unwrap_or_else(|| "None".into())
+        self.as_ref()
+            .map(BindTarget::format)
+            .unwrap_or_else(|| "None".into())
     }
 
     fn clear(&mut self) {
@@ -147,13 +152,14 @@ impl BindTarget for PointerButton {
             PointerButton::Middle => "M3",
             PointerButton::Secondary => "M2",
             PointerButton::Primary => "M1",
-        }.into()
+        }
+        .into()
     }
 
     fn down(&self, input: impl Deref<Target = InputState>) -> bool {
         input.pointer.button_down(*self)
     }
-    
+
     fn pressed(&self, input: impl Deref<Target = InputState>) -> bool {
         input.pointer.button_clicked(*self)
     }
@@ -177,9 +183,11 @@ impl BindTarget for Option<PointerButton> {
     }
 
     fn format(&self) -> String {
-        self.as_ref().map(BindTarget::format).unwrap_or_else(|| "None".into())
+        self.as_ref()
+            .map(BindTarget::format)
+            .unwrap_or_else(|| "None".into())
     }
-    
+
     fn clear(&mut self) {
         *self = None;
     }
@@ -234,7 +242,7 @@ impl<B: BindTarget> BindTarget for (B, Modifiers) {
     }
 
     fn down(&self, input: impl Deref<Target = InputState>) -> bool {
-        input.modifiers.matches(self.1) && self.0.down(input) 
+        input.modifiers.matches(self.1) && self.0.down(input)
     }
 
     fn pressed(&self, input: impl Deref<Target = InputState>) -> bool {
@@ -278,7 +286,9 @@ impl<B: BindTarget> BindTarget for Option<(B, Modifiers)> {
     }
 
     fn format(&self) -> String {
-        self.as_ref().map(BindTarget::format).unwrap_or_else(|| "None".into())
+        self.as_ref()
+            .map(BindTarget::format)
+            .unwrap_or_else(|| "None".into())
     }
 
     fn down(&self, input: impl Deref<Target = InputState>) -> bool {
@@ -314,7 +324,7 @@ fn test_set_opt() {
         shift: true,
         ctrl: false,
         command: false,
-        mac_cmd: false
+        mac_cmd: false,
     };
     b.set_key(Key::Tab, mods);
 

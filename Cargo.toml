@@ -5,6 +5,7 @@ edition = "2021"
 description = "Library for storing user binds"
 license = "MIT"
 authors = ["ItsEthra"]
+repository = "https://github.com/ItsEthra/egui-bind"
 
 [dependencies]
 egui = "0.19"

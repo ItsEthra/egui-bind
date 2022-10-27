@@ -1,5 +1,5 @@
-use egui::{Key, PointerButton, Modifiers, InputState};
 use crate::BindTarget;
+use egui::{InputState, Key, Modifiers, PointerButton};
 use std::ops::Deref;
 
 /// Bind target that can be either a [`egui::Key`] or a [`egui::PointerButton`]
@@ -31,7 +31,7 @@ impl BindTarget for KeyOrPointer {
     fn format(&self) -> String {
         match self {
             Self::Key(k) => k.format(),
-            Self::Pointer(p) => p.format()
+            Self::Pointer(p) => p.format(),
         }
     }
 
@@ -78,7 +78,7 @@ impl BindTarget for Option<KeyOrPointer> {
         match self {
             Some(KeyOrPointer::Key(k)) => k.format(),
             Some(KeyOrPointer::Pointer(p)) => p.format(),
-            None => "None".into()
+            None => "None".into(),
         }
     }
 
@@ -94,4 +94,3 @@ impl BindTarget for Option<KeyOrPointer> {
         self.as_ref().map(|v| v.released(input)).unwrap_or(false)
     }
 }
-
