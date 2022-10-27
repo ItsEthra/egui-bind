@@ -1,10 +1,10 @@
-use egui::{Context, Window, Modifiers, Key};
+use egui::{Context, Window, Modifiers};
 use eframe::{App, Frame, run_native, NativeOptions};
-use egui_bind::{Bind, BindTarget};
+use egui_bind::{Bind, BindTarget, KeyPointerTarget};
 
 #[derive(Default)]
 struct ExampleApp {
-    bind: Option<(Key, Modifiers)>,
+    bind: Option<(KeyPointerTarget, Modifiers)>,
     count: usize,
 }
 

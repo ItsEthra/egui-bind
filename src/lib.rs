@@ -4,8 +4,10 @@
 use egui::{Ui, Key, Id, Event, Sense, Rounding, Align2, FontId};
 use std::hash::Hash;
 
-mod state;
-pub use state::*;
+mod target;
+pub use target::*;
+mod either;
+pub use either::*;
 
 /// Widget for showing the bind itself
 pub struct Bind<'a, B: BindTarget> {
@@ -58,7 +60,7 @@ impl<B: BindTarget> Bind<'_, B> {
                     self.value.set_key(key, modifiers);
                     true
                 }
-                Some(Event::PointerButton { button, modifiers, .. }) if !B::IS_KEY => {
+                Some(Event::PointerButton { button, modifiers, .. }) if B::IS_POINTER => {
                     self.value.set_pointer(button, modifiers);
                     true
                 }

@@ -3,8 +3,11 @@ use egui::{Key, Modifiers, PointerButton, InputState};
 
 /// Type that can be used as a bind target
 pub trait BindTarget: Clone {
-    /// Can accept key input? Otherwise accepts pointer.
+    /// Can accept key bind?
     const IS_KEY: bool;
+    /// Can accept pointer bind?
+    const IS_POINTER: bool;
+
     /// Can be cleared?
     const CLEARABLE: bool;
 
@@ -32,6 +35,7 @@ pub trait BindTarget: Clone {
 
 impl BindTarget for Key {
     const IS_KEY: bool = true;
+    const IS_POINTER: bool = false;
     const CLEARABLE: bool = false;
 
     fn set_key(&mut self, key: Key, _: Modifiers) {
@@ -87,6 +91,7 @@ macro_rules! option_through {
 
 impl BindTarget for Option<Key> {
     const IS_KEY: bool = true;
+    const IS_POINTER: bool = false;
     const CLEARABLE: bool = true;
 
     fn set_key(&mut self, key: Key, _: Modifiers) {
@@ -120,6 +125,7 @@ impl BindTarget for Option<Key> {
 
 impl BindTarget for PointerButton {
     const IS_KEY: bool = false;
+    const IS_POINTER: bool = true;
     const CLEARABLE: bool = false;
 
     fn set_key(&mut self, _: Key, _: Modifiers) {
@@ -159,6 +165,7 @@ impl BindTarget for PointerButton {
 
 impl BindTarget for Option<PointerButton> {
     const IS_KEY: bool = false;
+    const IS_POINTER: bool = true;
     const CLEARABLE: bool = false;
 
     fn set_key(&mut self, _: Key, _: Modifiers) {
@@ -192,6 +199,7 @@ impl BindTarget for Option<PointerButton> {
 
 impl<B: BindTarget> BindTarget for (B, Modifiers) {
     const IS_KEY: bool = B::IS_KEY;
+    const IS_POINTER: bool = B::IS_POINTER;
     const CLEARABLE: bool = false;
 
     fn set_key(&mut self, key: Key, modifiers: Modifiers) {
@@ -240,6 +248,7 @@ impl<B: BindTarget> BindTarget for (B, Modifiers) {
 
 impl<B: BindTarget> BindTarget for Option<(B, Modifiers)> {
     const IS_KEY: bool = B::IS_KEY;
+    const IS_POINTER: bool = B::IS_POINTER;
     const CLEARABLE: bool = true;
 
     fn set_key(&mut self, key: Key, modifiers: Modifiers) {
