@@ -1,15 +1,33 @@
-use std::{mem::zeroed, ops::Deref};
-
+use std::{mem::{zeroed, transmute, discriminant}, ops::Deref};
 use egui::{Key, Modifiers, PointerButton, InputState};
 
+/// Type that can be used as a bind target
 pub trait BindTarget: Clone {
+    /// Can accept key input? Otherwise accepts pointer.
     const IS_KEY: bool;
+    /// Can be cleared?
     const CLEARABLE: bool;
 
+    /// Sets new key bind
     fn set_key(&mut self, key: Key, modifiers: Modifiers);
+
+    /// Sets new pointer bind
     fn set_pointer(&mut self, button: PointerButton, modifiers: Modifiers);
+
+    /// Clears the bind
     fn clear(&mut self);
+
+    /// Formats a bind to a string
     fn format(&self) -> String;
+
+    /// Is bind down?
+    fn down(&self, input: impl Deref<Target = InputState>) -> bool;
+
+    /// Was bind pressed this frame?
+    fn pressed(&self, input: impl Deref<Target = InputState>) -> bool;
+
+    /// Was bind released this frame?
+    fn released(&self, input: impl Deref<Target = InputState>) -> bool;
 }
 
 impl BindTarget for Key {
@@ -33,13 +51,38 @@ impl BindTarget for Key {
             Self::Delete => "DEL".into(),
             Self::PageUp => "PGU".into(),
             Self::PageDown => "PGD".into(),
-            _ => format!("{self:?}"),
+            _ => match unsafe { transmute::<_, u64>(discriminant(self)) } {
+                i @ 15..=24 => format!("{}", i - 15),
+                _ => format!("{self:?}"),
+            },
         }
     }
 
     fn clear(&mut self) {
         unimplemented!()
     }
+
+    fn down(&self, input: impl Deref<Target = InputState>) -> bool {
+        input.key_down(*self)
+    }
+
+    fn pressed(&self, input: impl Deref<Target = InputState>) -> bool {
+        input.key_pressed(*self)
+    }
+
+    fn released(&self, input: impl Deref<Target = InputState>) -> bool {
+        input.key_released(*self) 
+    }
+}
+
+macro_rules! option_through {
+    ($check:expr, $input:expr, $($path:tt)*) => {
+        if let Some(v) = $check {
+            v.$($path)*($input)
+        } else {
+            false
+        }
+    };
 }
 
 impl BindTarget for Option<Key> {
@@ -60,6 +103,18 @@ impl BindTarget for Option<Key> {
 
     fn clear(&mut self) {
         *self = None;
+    }
+
+    fn down(&self, input: impl Deref<Target = InputState>) -> bool {
+        option_through!(self, input, down)
+    }
+
+    fn pressed(&self, input: impl Deref<Target = InputState>) -> bool {
+        option_through!(self, input, pressed)
+    }
+
+    fn released(&self, input: impl Deref<Target = InputState>) -> bool {
+        option_through!(self, input, released)
     }
 }
 
@@ -88,6 +143,18 @@ impl BindTarget for PointerButton {
             PointerButton::Primary => "M1",
         }.into()
     }
+
+    fn down(&self, input: impl Deref<Target = InputState>) -> bool {
+        input.pointer.button_down(*self)
+    }
+    
+    fn pressed(&self, input: impl Deref<Target = InputState>) -> bool {
+        input.pointer.button_clicked(*self)
+    }
+
+    fn released(&self, input: impl Deref<Target = InputState>) -> bool {
+        input.pointer.button_released(*self)
+    }
 }
 
 impl BindTarget for Option<PointerButton> {
@@ -108,6 +175,18 @@ impl BindTarget for Option<PointerButton> {
     
     fn clear(&mut self) {
         *self = None;
+    }
+
+    fn down(&self, input: impl Deref<Target = InputState>) -> bool {
+        option_through!(self, input, down)
+    }
+
+    fn pressed(&self, input: impl Deref<Target = InputState>) -> bool {
+        option_through!(self, input, pressed)
+    }
+
+    fn released(&self, input: impl Deref<Target = InputState>) -> bool {
+        option_through!(self, input, released)
     }
 }
 
@@ -145,6 +224,18 @@ impl<B: BindTarget> BindTarget for (B, Modifiers) {
 
         prefix + &self.0.format()
     }
+
+    fn down(&self, input: impl Deref<Target = InputState>) -> bool {
+        input.modifiers.matches(self.1) && self.0.down(input) 
+    }
+
+    fn pressed(&self, input: impl Deref<Target = InputState>) -> bool {
+        input.modifiers.matches(self.1) && self.0.pressed(input)
+    }
+
+    fn released(&self, input: impl Deref<Target = InputState>) -> bool {
+        input.modifiers.matches(self.1) && self.0.released(input)
+    }
 }
 
 impl<B: BindTarget> BindTarget for Option<(B, Modifiers)> {
@@ -179,6 +270,30 @@ impl<B: BindTarget> BindTarget for Option<(B, Modifiers)> {
 
     fn format(&self) -> String {
         self.as_ref().map(BindTarget::format).unwrap_or_else(|| "None".into())
+    }
+
+    fn down(&self, input: impl Deref<Target = InputState>) -> bool {
+        if let Some(v) = self {
+            v.down(input)
+        } else {
+            false
+        }
+    }
+
+    fn pressed(&self, input: impl Deref<Target = InputState>) -> bool {
+        if let Some(v) = self {
+            v.pressed(input)
+        } else {
+            false
+        }
+    }
+
+    fn released(&self, input: impl Deref<Target = InputState>) -> bool {
+        if let Some(v) = self {
+            v.released(input)
+        } else {
+            false
+        }
     }
 }
 

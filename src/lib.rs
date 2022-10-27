@@ -1,15 +1,20 @@
+#![doc = include_str!("../README.md")]
+#![warn(missing_docs)]
+
 use egui::{Ui, Key, Id, Event, Sense, Rounding, Align2, FontId};
 use std::hash::Hash;
 
 mod state;
 pub use state::*;
 
-pub struct Hotkey<'a, B: BindTarget> {
+/// Widget for showing the bind itself
+pub struct Bind<'a, B: BindTarget> {
     id: Id,
     value: &'a mut B
 }
 
-impl<'a, B: BindTarget> Hotkey<'a, B> {
+impl<'a, B: BindTarget> Bind<'a, B> {
+    /// Creates a new bind widget
     pub fn new(id_source: impl Hash, value: &'a mut B) -> Self {
         Self {
             id: Id::new(id_source),
@@ -18,13 +23,15 @@ impl<'a, B: BindTarget> Hotkey<'a, B> {
     }
 }
 
-impl<B: BindTarget> Hotkey<'_, B> {
+impl<B: BindTarget> Bind<'_, B> {
+    /// Shows the bind widget
     pub fn show(self, ui: &mut Ui) -> bool {
         let changing = ui.memory().data.get_temp(self.id).unwrap_or(false);
 
-        let size = ui.spacing().interact_size;
-        let (r, p) = ui.allocate_painter(size, Sense::click());
+        let mut size = ui.spacing().interact_size;
+        size.x *= 1.25;
 
+        let (r, p) = ui.allocate_painter(size, Sense::click());
         let vis = ui.style().interact_selectable(&r, changing);
 
         p.rect_filled(r.rect, Rounding::same(4.), vis.bg_fill);
