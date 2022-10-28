@@ -4,7 +4,7 @@ Library for showing key and pointer binds
 # Installation
 ```toml
 [dependencies]
-egui-bind = "0.2"
+egui-bind = "0.3"
 ```
 
 # Example

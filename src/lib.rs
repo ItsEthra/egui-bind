@@ -23,9 +23,7 @@ impl<'a, B: BindTarget> Bind<'a, B> {
             value,
         }
     }
-}
 
-impl<B: BindTarget> Bind<'_, B> {
     /// Shows the bind widget
     pub fn show(self, ui: &mut Ui) -> bool {
         let id = ui.make_persistent_id(self.id);
@@ -61,27 +59,28 @@ impl<B: BindTarget> Bind<'_, B> {
                 })
                 .cloned();
 
-            let updated = match key {
+            let reset = match key {
                 Some(Event::Key {
                     key: Key::Escape, ..
                 }) if B::CLEARABLE => {
                     self.value.clear();
                     true
                 }
-                Some(Event::Key { key, modifiers, .. }) if B::IS_KEY => {
+                Some(Event::Key { key, modifiers, .. }) if B::IS_KEY && r.hovered() => {
                     self.value.set_key(key, modifiers);
                     true
                 }
                 Some(Event::PointerButton {
                     button, modifiers, ..
-                }) if B::IS_POINTER => {
+                }) if B::IS_POINTER && r.hovered() => {
                     self.value.set_pointer(button, modifiers);
                     true
                 }
+                _ if !r.hovered() => true,
                 _ => false,
             };
 
-            if updated {
+            if reset {
                 ui.memory().data.insert_temp(id, false);
                 return true;
             }
