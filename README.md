@@ -1,6 +1,8 @@
 # egui-bind
 Library for showing key and pointer binds
 
+![](media/showcase1.gif)
+
 # Installation
 ```toml
 [dependencies]
