@@ -6,7 +6,11 @@ Library for showing key and pointer binds
 # Installation
 ```toml
 [dependencies]
-egui-bind = "0.3"
+egui-bind = "0.4"
+
+# Or if you wish for your binds to be serializable
+# [dependencies]
+# egui-bind = { version = "0.4", features = ["serde"] }
 ```
 
 # Example
@@ -14,6 +18,8 @@ egui-bind = "0.3"
 // Foreword: You can find this example in `examples/bind.rs`
 #[derive(Default)]
 struct ExampleApp {
+    // This can also be serialized with `serde`. You just
+    // need to enable `serde` feature.
     bind: Option<(KeyOrPointer, Modifiers)>,
     count: usize,
 }

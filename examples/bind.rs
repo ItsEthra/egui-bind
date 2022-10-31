@@ -23,7 +23,7 @@ impl App for ExampleApp {
             // `Bind::new` accepts a reference to a type that implements `BindTarget`
             // Most common of those are:
             // `Key`, `PointerButton`, `KeyOrPointer`, `(BindTarget, Modifiers)`
-            // `Option<BindTarget>`
+            // `Option<BindTarget>`, `Option<(BindTarget, Modifiers)>`
             let assigned = Bind::new("_test", &mut self.bind).show(ui);
 
             // Here it checks if the bind was pressed but not assigned on the same frame.
