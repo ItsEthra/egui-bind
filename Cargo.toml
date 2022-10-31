@@ -7,8 +7,13 @@ license = "MIT"
 authors = ["ItsEthra"]
 repository = "https://github.com/ItsEthra/egui-bind"
 
+[features]
+serde = ["dep:serde", "egui/serde"]
+
 [dependencies]
 egui = "0.19"
+serde = { version = "1.0", features = ["derive"], optional = true }
 
 [dev-dependencies]
 eframe = "0.19"
+ron = "0.8.0"
