@@ -3,7 +3,7 @@ use egui::{InputState, Key, Modifiers, PointerButton};
 use std::ops::Deref;
 
 /// Bind target that can be either a [`egui::Key`] or a [`egui::PointerButton`]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum KeyOrPointer {
     /// Key bind
