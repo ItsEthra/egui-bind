@@ -1,7 +1,9 @@
 #![doc = include_str!("../README.md")]
 #![warn(missing_docs)]
 
-use egui::{style::Margin, Align2, Event, FontId, Id, Key, Response, Rounding, Sense, Ui, Widget};
+use egui::{
+    style::Margin, Align2, Event, FontId, Id, Key, PointerButton, Response, Sense, Ui, Widget,
+};
 use std::hash::Hash;
 
 mod target;
@@ -30,13 +32,12 @@ impl<B: BindTarget> Widget for Bind<'_, B> {
         let id = ui.make_persistent_id(self.id);
         let changing = ui.memory().data.get_temp(id).unwrap_or(false);
 
-        let mut size = ui.spacing().interact_size;
-        size.x *= 1.25;
+        let size = ui.spacing().interact_size;
 
         let (mut r, p) = ui.allocate_painter(size, Sense::click());
         let vis = ui.style().interact_selectable(&r, changing);
 
-        p.rect_filled(r.rect, Rounding::same(4.), vis.bg_fill);
+        p.rect_filled(r.rect, vis.rounding, vis.bg_fill);
 
         p.text(
             r.rect.center(),
@@ -67,17 +68,17 @@ impl<B: BindTarget> Widget for Bind<'_, B> {
                     self.value.clear();
                     (true, true)
                 }
-                Some(Event::Key { key, modifiers, .. }) if B::IS_KEY && r.hovered() => {
+                Some(Event::Key { key, modifiers, .. }) if B::IS_KEY => {
                     self.value.set_key(key, modifiers);
                     (true, true)
                 }
                 Some(Event::PointerButton {
                     button, modifiers, ..
-                }) if B::IS_POINTER && r.hovered() => {
+                }) if B::IS_POINTER && button != PointerButton::Primary => {
                     self.value.set_pointer(button, modifiers);
                     (true, true)
                 }
-                _ if !r.hovered() => (true, false),
+                _ if r.clicked_elsewhere() => (true, false),
                 _ => (false, false),
             };
 
