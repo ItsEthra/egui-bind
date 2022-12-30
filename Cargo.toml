@@ -1,6 +1,6 @@
 [package]
 name = "egui-bind"
-version = "0.5.1"
+version = "0.5.2"
 edition = "2021"
 description = "Library for showing keybinds"
 license = "MIT"

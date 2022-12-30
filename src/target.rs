@@ -58,8 +58,10 @@ impl BindTarget for Key {
             Self::Delete => "DEL".into(),
             Self::PageUp => "PGU".into(),
             Self::PageDown => "PGD".into(),
+            Self::PlusEquals => "=".into(),
+            Self::Minus => "-".into(),
             _ => match unsafe { transmute::<_, u64>(discriminant(self)) } {
-                i @ 15..=24 => format!("{}", i - 15),
+                i @ 17..=26 => format!("{}", i - 17),
                 _ => format!("{self:?}"),
             },
         }
