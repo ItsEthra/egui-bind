@@ -1,4 +1,4 @@
-use eframe::{run_native, App, Frame, NativeOptions};
+use eframe::{run_native, App, CreationContext, Frame, NativeOptions};
 use egui::{Context, Modifiers, Window};
 use egui_bind::{Bind, BindTarget, KeyOrPointer};
 
@@ -25,7 +25,9 @@ impl App for ExampleApp {
             }
 
             let r = ui.checkbox(&mut self.check, "Check");
-            egui_bind::show_bind_popup(ui, &mut self.bind, "check_popup", &r);
+            if egui_bind::show_bind_popup(ui, &mut self.bind, "check_popup", &r) {
+                println!("Rebinded from popup");
+            }
 
             // `Bind::new` accepts a reference to a type that implements `BindTarget`
             // Most common of those are:
@@ -40,10 +42,11 @@ impl App for ExampleApp {
     }
 }
 
+fn create(CreationContext { egui_ctx: ctx, .. }: &CreationContext) -> Box<dyn App> {
+    ctx.set_pixels_per_point(1.5);
+    Box::new(ExampleApp::default())
+}
+
 fn main() {
-    run_native(
-        "Example",
-        NativeOptions::default(),
-        Box::new(|_| Box::new(ExampleApp::default())),
-    );
+    run_native("Example", NativeOptions::default(), Box::new(create));
 }

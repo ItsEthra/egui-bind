@@ -105,7 +105,7 @@ pub fn show_bind_popup(
     bind: &mut impl BindTarget,
     popup_id_source: impl Hash,
     widget_response: &Response,
-) {
+) -> bool {
     let popup_id = Id::new(popup_id_source);
 
     if widget_response.secondary_clicked() {
@@ -121,18 +121,23 @@ pub fn show_bind_popup(
     styles.spacing.window_margin = Margin::same(0.);
     ui.ctx().set_style(styles.clone());
 
-    egui::popup_below_widget(ui, popup_id, widget_response, |ui| {
+    let out = egui::popup_below_widget(ui, popup_id, widget_response, |ui| {
         let r = ui.add(Bind::new(popup_id.with("_bind"), bind));
 
         if r.changed() || ui.input().key_down(Key::Escape) {
             ui.memory().close_popup();
             should_close = true;
         }
+
+        r.changed()
     });
+
     styles.spacing.window_margin = saved_margin;
     ui.ctx().set_style(styles);
 
     if !should_close && was_opened {
         ui.memory().open_popup(popup_id);
     }
+
+    out.unwrap_or(false)
 }
