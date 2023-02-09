@@ -1,8 +1,5 @@
 use egui::{InputState, Key, Modifiers, PointerButton};
-use std::{
-    mem::{discriminant, transmute, zeroed},
-    ops::Deref,
-};
+use std::{mem::zeroed, ops::Deref};
 
 /// Type that can be used as a bind target
 pub trait BindTarget: Clone {
@@ -60,10 +57,17 @@ impl BindTarget for Key {
             Self::PageDown => "PGD".into(),
             Self::PlusEquals => "=".into(),
             Self::Minus => "-".into(),
-            _ => match unsafe { transmute::<_, u64>(discriminant(self)) } {
-                i @ 17..=26 => format!("{}", i - 17),
-                _ => format!("{self:?}"),
-            },
+            Self::Num0 => "0".into(),
+            Self::Num1 => "1".into(),
+            Self::Num2 => "2".into(),
+            Self::Num3 => "3".into(),
+            Self::Num4 => "4".into(),
+            Self::Num5 => "5".into(),
+            Self::Num6 => "6".into(),
+            Self::Num7 => "7".into(),
+            Self::Num8 => "8".into(),
+            Self::Num9 => "9".into(),
+            _ => format!("{self:?}"),
         }
     }
 
