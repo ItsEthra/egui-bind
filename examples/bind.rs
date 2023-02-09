@@ -19,7 +19,7 @@ impl App for ExampleApp {
             // on the same frame user assigned a new bind, which may not be the
             // desired behavior. But you can mitigate this by using the return
             // value of a `Bind::show` as shown below with `println!`.
-            if self.bind.pressed(ui.input()) {
+            if self.bind.pressed(&mut ui.input(|i| i.clone())) {
                 self.count += 1;
                 self.check = !self.check;
             }
@@ -47,6 +47,6 @@ fn create(CreationContext { egui_ctx: ctx, .. }: &CreationContext) -> Box<dyn Ap
     Box::new(ExampleApp::default())
 }
 
-fn main() {
-    run_native("Example", NativeOptions::default(), Box::new(create));
+fn main() -> Result<(), eframe::Error>{
+    run_native("Example", NativeOptions::default(), Box::new(create))
 }
