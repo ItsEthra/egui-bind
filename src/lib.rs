@@ -30,7 +30,7 @@ impl<'a, B: BindTarget> Bind<'a, B> {
 impl<B: BindTarget> Widget for Bind<'_, B> {
     fn ui(self, ui: &mut Ui) -> Response {
         let id = ui.make_persistent_id(self.id);
-        let changing = ui.memory().data.get_temp(id).unwrap_or(false);
+        let changing = ui.memory_mut(|mem| mem.data.get_temp(id).unwrap_or(false));
 
         let size = ui.spacing().interact_size;
 
@@ -48,18 +48,18 @@ impl<B: BindTarget> Widget for Bind<'_, B> {
         );
 
         if changing {
-            let key = ui
-                .input()
-                .events
-                .iter()
-                .find(|e| {
-                    matches!(
-                        e,
-                        Event::Key { pressed: true, .. }
-                            | Event::PointerButton { pressed: true, .. }
-                    )
-                })
-                .cloned();
+            let key = ui.input(|i| {
+                i.events
+                    .iter()
+                    .find(|e| {
+                        matches!(
+                            e,
+                            Event::Key { pressed: true, .. }
+                                | Event::PointerButton { pressed: true, .. }
+                        )
+                    })
+                    .cloned()
+            });
 
             let (reset, changed) = match key {
                 Some(Event::Key {
@@ -83,7 +83,7 @@ impl<B: BindTarget> Widget for Bind<'_, B> {
             };
 
             if reset {
-                ui.memory().data.insert_temp(id, false);
+                ui.memory_mut(|mem| mem.data.insert_temp(id, false));
             }
 
             if changed {
@@ -92,7 +92,7 @@ impl<B: BindTarget> Widget for Bind<'_, B> {
         }
 
         if r.clicked() {
-            ui.memory().data.insert_temp(id, true);
+            ui.memory_mut(|mem| mem.data.insert_temp(id, true));
         }
 
         r
@@ -109,11 +109,11 @@ pub fn show_bind_popup(
     let popup_id = Id::new(popup_id_source);
 
     if widget_response.secondary_clicked() {
-        ui.memory().toggle_popup(popup_id);
+        ui.memory_mut(|mem| mem.toggle_popup(popup_id))
     }
 
     let mut should_close = false;
-    let was_opened = ui.memory().is_popup_open(popup_id);
+    let was_opened = ui.memory_mut(|mem| mem.is_popup_open(popup_id));
 
     let mut styles = ui.ctx().style().as_ref().clone();
     let saved_margin = styles.spacing.window_margin;
@@ -124,8 +124,8 @@ pub fn show_bind_popup(
     let out = egui::popup_below_widget(ui, popup_id, widget_response, |ui| {
         let r = ui.add(Bind::new(popup_id.with("_bind"), bind));
 
-        if r.changed() || ui.input().key_down(Key::Escape) {
-            ui.memory().close_popup();
+        if r.changed() || ui.input(|i| i.key_down(Key::Escape)) {
+            ui.memory_mut(|mem| mem.close_popup());
             should_close = true;
         }
 
@@ -136,7 +136,7 @@ pub fn show_bind_popup(
     ui.ctx().set_style(styles);
 
     if !should_close && was_opened {
-        ui.memory().open_popup(popup_id);
+        ui.memory_mut(|mem| mem.open_popup(popup_id));
     }
 
     out.unwrap_or(false)

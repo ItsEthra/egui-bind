@@ -12,7 +12,7 @@ serde = ["dep:serde", "egui/serde"]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"], optional = true }
-egui = "0.20"
+egui = { version = "0.21", default-features = false }
 
 [dev-dependencies]
-eframe = "0.20"
+eframe = "0.21"
