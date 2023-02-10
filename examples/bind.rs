@@ -47,6 +47,6 @@ fn create(CreationContext { egui_ctx: ctx, .. }: &CreationContext) -> Box<dyn Ap
     Box::new(ExampleApp::default())
 }
 
-fn main() -> Result<(), eframe::Error>{
+fn main() -> Result<(), eframe::Error> {
     run_native("Example", NativeOptions::default(), Box::new(create))
 }
