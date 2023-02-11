@@ -1,5 +1,5 @@
-use egui::{InputState, Key, Modifiers, PointerButton};
-use std::{mem::zeroed, ops::Deref};
+use egui::{Context, Key, Modifiers, PointerButton};
+use std::mem::zeroed;
 
 /// Type that can be used as a bind target
 pub trait BindTarget: Clone {
@@ -24,13 +24,13 @@ pub trait BindTarget: Clone {
     fn format(&self) -> String;
 
     /// Is bind down?
-    fn down(&self, input: impl Deref<Target = InputState>) -> bool;
+    fn down(&self, ctx: &Context) -> bool;
 
     /// Was bind pressed this frame?
-    fn pressed(&self, input: impl Deref<Target = InputState>) -> bool;
+    fn pressed(&self, ctx: &Context) -> bool;
 
     /// Was bind released this frame?
-    fn released(&self, input: impl Deref<Target = InputState>) -> bool;
+    fn released(&self, ctx: &Context) -> bool;
 }
 
 impl BindTarget for Key {
@@ -75,23 +75,23 @@ impl BindTarget for Key {
         unimplemented!()
     }
 
-    fn down(&self, input: impl Deref<Target = InputState>) -> bool {
-        input.key_down(*self)
+    fn down(&self, ctx: &Context) -> bool {
+        ctx.input(|i| i.key_down(*self))
     }
 
-    fn pressed(&self, input: impl Deref<Target = InputState>) -> bool {
-        input.key_pressed(*self)
+    fn pressed(&self, ctx: &Context) -> bool {
+        ctx.input(|i| i.key_pressed(*self))
     }
 
-    fn released(&self, input: impl Deref<Target = InputState>) -> bool {
-        input.key_released(*self)
+    fn released(&self, ctx: &Context) -> bool {
+        ctx.input(|i| i.key_released(*self))
     }
 }
 
 macro_rules! option_through {
-    ($check:expr, $input:expr, $($path:tt)*) => {
+    ($check:expr, $ctx:expr, $($path:tt)*) => {
         if let Some(v) = $check {
-            v.$($path)*($input)
+            v.$($path)*($ctx)
         } else {
             false
         }
@@ -121,16 +121,16 @@ impl BindTarget for Option<Key> {
         *self = None;
     }
 
-    fn down(&self, input: impl Deref<Target = InputState>) -> bool {
-        option_through!(self, input, down)
+    fn down(&self, ctx: &Context) -> bool {
+        option_through!(self, ctx, down)
     }
 
-    fn pressed(&self, input: impl Deref<Target = InputState>) -> bool {
-        option_through!(self, input, pressed)
+    fn pressed(&self, ctx: &Context) -> bool {
+        option_through!(self, ctx, pressed)
     }
 
-    fn released(&self, input: impl Deref<Target = InputState>) -> bool {
-        option_through!(self, input, released)
+    fn released(&self, ctx: &Context) -> bool {
+        option_through!(self, ctx, released)
     }
 }
 
@@ -162,16 +162,16 @@ impl BindTarget for PointerButton {
         .into()
     }
 
-    fn down(&self, input: impl Deref<Target = InputState>) -> bool {
-        input.pointer.button_down(*self)
+    fn down(&self, ctx: &Context) -> bool {
+        ctx.input(|i| i.pointer.button_down(*self))
     }
 
-    fn pressed(&self, input: impl Deref<Target = InputState>) -> bool {
-        input.pointer.button_clicked(*self)
+    fn pressed(&self, ctx: &Context) -> bool {
+        ctx.input(|i| i.pointer.button_pressed(*self))
     }
 
-    fn released(&self, input: impl Deref<Target = InputState>) -> bool {
-        input.pointer.button_released(*self)
+    fn released(&self, ctx: &Context) -> bool {
+        ctx.input(|i| i.pointer.button_released(*self))
     }
 }
 
@@ -198,16 +198,16 @@ impl BindTarget for Option<PointerButton> {
         *self = None;
     }
 
-    fn down(&self, input: impl Deref<Target = InputState>) -> bool {
-        option_through!(self, input, down)
+    fn down(&self, ctx: &Context) -> bool {
+        option_through!(self, ctx, down)
     }
 
-    fn pressed(&self, input: impl Deref<Target = InputState>) -> bool {
-        option_through!(self, input, pressed)
+    fn pressed(&self, ctx: &Context) -> bool {
+        option_through!(self, ctx, pressed)
     }
 
-    fn released(&self, input: impl Deref<Target = InputState>) -> bool {
-        option_through!(self, input, released)
+    fn released(&self, ctx: &Context) -> bool {
+        option_through!(self, ctx, released)
     }
 }
 
@@ -247,16 +247,16 @@ impl<B: BindTarget> BindTarget for (B, Modifiers) {
         prefix + &self.0.format()
     }
 
-    fn down(&self, input: impl Deref<Target = InputState>) -> bool {
-        input.modifiers.matches(self.1) && self.0.down(input)
+    fn down(&self, ctx: &Context) -> bool {
+        ctx.input(|i| i.modifiers.matches(self.1)) && self.0.down(ctx)
     }
 
-    fn pressed(&self, input: impl Deref<Target = InputState>) -> bool {
-        input.modifiers.matches(self.1) && self.0.pressed(input)
+    fn pressed(&self, ctx: &Context) -> bool {
+        ctx.input(|i| i.modifiers.matches(self.1)) && self.0.pressed(ctx)
     }
 
-    fn released(&self, input: impl Deref<Target = InputState>) -> bool {
-        input.modifiers.matches(self.1) && self.0.released(input)
+    fn released(&self, ctx: &Context) -> bool {
+        ctx.input(|i| i.modifiers.matches(self.1)) && self.0.released(ctx)
     }
 }
 
@@ -297,25 +297,25 @@ impl<B: BindTarget> BindTarget for Option<(B, Modifiers)> {
             .unwrap_or_else(|| "None".into())
     }
 
-    fn down(&self, input: impl Deref<Target = InputState>) -> bool {
+    fn down(&self, ctx: &Context) -> bool {
         if let Some(v) = self {
-            v.down(input)
+            v.down(ctx)
         } else {
             false
         }
     }
 
-    fn pressed(&self, input: impl Deref<Target = InputState>) -> bool {
+    fn pressed(&self, ctx: &Context) -> bool {
         if let Some(v) = self {
-            v.pressed(input)
+            v.pressed(ctx)
         } else {
             false
         }
     }
 
-    fn released(&self, input: impl Deref<Target = InputState>) -> bool {
+    fn released(&self, ctx: &Context) -> bool {
         if let Some(v) = self {
-            v.released(input)
+            v.released(ctx)
         } else {
             false
         }

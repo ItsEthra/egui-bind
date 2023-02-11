@@ -19,7 +19,7 @@ impl App for ExampleApp {
             // on the same frame user assigned a new bind, which may not be the
             // desired behavior. But you can mitigate this by using the return
             // value of a `Bind::show` as shown below with `println!`.
-            if self.bind.pressed(&mut ui.input(|i| i.clone())) {
+            if self.bind.pressed(ctx) {
                 self.count += 1;
                 self.check = !self.check;
             }

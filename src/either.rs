@@ -1,6 +1,5 @@
 use crate::BindTarget;
-use egui::{InputState, Key, Modifiers, PointerButton};
-use std::ops::Deref;
+use egui::{Context, Key, Modifiers, PointerButton};
 
 /// Bind target that can be either a [`egui::Key`] or a [`egui::PointerButton`]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -36,24 +35,24 @@ impl BindTarget for KeyOrPointer {
         }
     }
 
-    fn down(&self, input: impl Deref<Target = InputState>) -> bool {
+    fn down(&self, ctx: &Context) -> bool {
         match self {
-            Self::Key(k) => k.down(input),
-            Self::Pointer(p) => p.down(input),
+            Self::Key(k) => k.down(ctx),
+            Self::Pointer(p) => p.down(ctx),
         }
     }
 
-    fn pressed(&self, input: impl Deref<Target = InputState>) -> bool {
+    fn pressed(&self, ctx: &Context) -> bool {
         match self {
-            Self::Key(k) => k.pressed(input),
-            Self::Pointer(p) => p.pressed(input),
+            Self::Key(k) => k.pressed(ctx),
+            Self::Pointer(p) => p.pressed(ctx),
         }
     }
 
-    fn released(&self, input: impl Deref<Target = InputState>) -> bool {
+    fn released(&self, ctx: &Context) -> bool {
         match self {
-            Self::Key(k) => k.released(input),
-            Self::Pointer(p) => p.released(input),
+            Self::Key(k) => k.released(ctx),
+            Self::Pointer(p) => p.released(ctx),
         }
     }
 }
@@ -83,15 +82,15 @@ impl BindTarget for Option<KeyOrPointer> {
         }
     }
 
-    fn down(&self, input: impl Deref<Target = InputState>) -> bool {
-        self.as_ref().map(|v| v.down(input)).unwrap_or(false)
+    fn down(&self, ctx: &Context) -> bool {
+        self.as_ref().map(|v| v.down(ctx)).unwrap_or(false)
     }
 
-    fn pressed(&self, input: impl Deref<Target = InputState>) -> bool {
-        self.as_ref().map(|v| v.pressed(input)).unwrap_or(false)
+    fn pressed(&self, ctx: &Context) -> bool {
+        self.as_ref().map(|v| v.pressed(ctx)).unwrap_or(false)
     }
 
-    fn released(&self, input: impl Deref<Target = InputState>) -> bool {
-        self.as_ref().map(|v| v.released(input)).unwrap_or(false)
+    fn released(&self, ctx: &Context) -> bool {
+        self.as_ref().map(|v| v.released(ctx)).unwrap_or(false)
     }
 }
