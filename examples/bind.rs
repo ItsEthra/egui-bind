@@ -42,6 +42,7 @@ impl App for ExampleApp {
     }
 }
 
+#[allow(clippy::box_default)]
 fn create(CreationContext { egui_ctx: ctx, .. }: &CreationContext) -> Box<dyn App> {
     ctx.set_pixels_per_point(1.5);
     Box::new(ExampleApp::default())

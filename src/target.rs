@@ -55,8 +55,17 @@ impl BindTarget for Key {
             Self::Delete => "DEL".into(),
             Self::PageUp => "PGU".into(),
             Self::PageDown => "PGD".into(),
-            Self::PlusEquals => "=".into(),
+            Self::Equals => "=".into(),
+            Self::Period => ".".into(),
+            Self::Comma => ",".into(),
+            Self::Plus => "+".into(),
+            Self::Backtick => "`".into(),
             Self::Minus => "-".into(),
+            Self::Backslash => "\\".into(),
+            Self::Colon => ":".into(),
+            Self::Semicolon => ";".into(),
+            Self::OpenBracket => "[".into(),
+            Self::CloseBracket => "]".into(),
             Self::Num0 => "0".into(),
             Self::Num1 => "1".into(),
             Self::Num2 => "2".into(),
@@ -248,15 +257,15 @@ impl<B: BindTarget> BindTarget for (B, Modifiers) {
     }
 
     fn down(&self, ctx: &Context) -> bool {
-        ctx.input(|i| i.modifiers.matches(self.1)) && self.0.down(ctx)
+        ctx.input(|i| i.modifiers.matches_logically(self.1)) && self.0.down(ctx)
     }
 
     fn pressed(&self, ctx: &Context) -> bool {
-        ctx.input(|i| i.modifiers.matches(self.1)) && self.0.pressed(ctx)
+        ctx.input(|i| i.modifiers.matches_logically(self.1)) && self.0.pressed(ctx)
     }
 
     fn released(&self, ctx: &Context) -> bool {
-        ctx.input(|i| i.modifiers.matches(self.1)) && self.0.released(ctx)
+        ctx.input(|i| i.modifiers.matches_logically(self.1)) && self.0.released(ctx)
     }
 }
 
