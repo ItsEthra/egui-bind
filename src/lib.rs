@@ -1,9 +1,7 @@
 #![doc = include_str!("../README.md")]
 #![warn(missing_docs)]
 
-use egui::{
-    style::Margin, Align2, Event, FontId, Id, Key, PointerButton, Response, Sense, Ui, Widget,
-};
+use egui::{Align2, Event, FontId, Id, Key, Margin, PointerButton, Response, Sense, Ui, Widget};
 use std::hash::Hash;
 
 mod target;
