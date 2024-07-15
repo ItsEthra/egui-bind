@@ -42,10 +42,13 @@ impl App for ExampleApp {
     }
 }
 
+type DynError = Box<dyn std::error::Error + Send + Sync>;
 #[allow(clippy::box_default)]
-fn create(CreationContext { egui_ctx: ctx, .. }: &CreationContext) -> Box<dyn App> {
+fn create(
+    CreationContext { egui_ctx: ctx, .. }: &CreationContext,
+) -> Result<Box<dyn App>, DynError> {
     ctx.set_pixels_per_point(1.5);
-    Box::new(ExampleApp::default())
+    Ok(Box::new(ExampleApp::default()))
 }
 
 fn main() -> Result<(), eframe::Error> {

@@ -119,16 +119,22 @@ pub fn show_bind_popup(
     styles.spacing.window_margin = Margin::same(0.);
     ui.ctx().set_style(styles.clone());
 
-    let out = egui::popup_below_widget(ui, popup_id, widget_response, |ui| {
-        let r = ui.add(Bind::new(popup_id.with("_bind"), bind));
+    let out = egui::popup_below_widget(
+        ui,
+        popup_id,
+        widget_response,
+        egui::PopupCloseBehavior::CloseOnClickOutside,
+        |ui| {
+            let r = ui.add(Bind::new(popup_id.with("_bind"), bind));
 
-        if r.changed() || ui.input(|i| i.key_down(Key::Escape)) {
-            ui.memory_mut(|mem| mem.close_popup());
-            should_close = true;
-        }
+            if r.changed() || ui.input(|i| i.key_down(Key::Escape)) {
+                ui.memory_mut(|mem| mem.close_popup());
+                should_close = true;
+            }
 
-        r.changed()
-    });
+            r.changed()
+        },
+    );
 
     styles.spacing.window_margin = saved_margin;
     ui.ctx().set_style(styles);
