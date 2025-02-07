@@ -35,7 +35,7 @@ impl<B: BindTarget> Widget for Bind<'_, B> {
         let (mut r, p) = ui.allocate_painter(size, Sense::click());
         let vis = ui.style().interact_selectable(&r, changing);
 
-        p.rect_filled(r.rect, vis.rounding, vis.bg_fill);
+        p.rect_filled(r.rect, vis.corner_radius, vis.bg_fill);
 
         p.text(
             r.rect.center(),
@@ -116,7 +116,7 @@ pub fn show_bind_popup(
     let mut styles = ui.ctx().style().as_ref().clone();
     let saved_margin = styles.spacing.window_margin;
 
-    styles.spacing.window_margin = Margin::same(0.);
+    styles.spacing.window_margin = Margin::same(0);
     ui.ctx().set_style(styles.clone());
 
     let out = egui::popup_below_widget(
