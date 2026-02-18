@@ -107,11 +107,11 @@ pub fn show_bind_popup(
     let popup_id = Id::new(popup_id_source);
 
     if widget_response.secondary_clicked() {
-        ui.memory_mut(|mem| mem.toggle_popup(popup_id))
+        egui::Popup::toggle_id(ui.ctx(), popup_id)
     }
 
     let mut should_close = false;
-    let was_opened = ui.memory_mut(|mem| mem.is_popup_open(popup_id));
+    let was_opened = egui::Popup::is_id_open(ui.ctx(), popup_id);
 
     let mut styles = ui.ctx().style().as_ref().clone();
     let saved_margin = styles.spacing.window_margin;
@@ -119,29 +119,30 @@ pub fn show_bind_popup(
     styles.spacing.window_margin = Margin::same(0);
     ui.ctx().set_style(styles.clone());
 
-    let out = egui::popup_below_widget(
-        ui,
-        popup_id,
-        widget_response,
-        egui::PopupCloseBehavior::CloseOnClickOutside,
-        |ui| {
-            let r = ui.add(Bind::new(popup_id.with("_bind"), bind));
+    let out = if was_opened {
+        egui::Popup::from_response(&widget_response)
+            .id(popup_id)
+            .align(egui::RectAlign::BOTTOM)
+            .close_behavior(egui::PopupCloseBehavior::CloseOnClickOutside)
+            .show(|ui| {
+                let r = ui.add(Bind::new(popup_id.with("_bind"), bind));
 
-            if r.changed() || ui.input(|i| i.key_down(Key::Escape)) {
-                ui.memory_mut(|mem| mem.close_popup());
-                should_close = true;
-            }
+                if r.changed() || ui.input(|i| i.key_down(Key::Escape)) {
+                    egui::Popup::close_id(ui.ctx(), popup_id);
+                    should_close = true;
+                }
 
-            r.changed()
-        },
-    );
+                r.changed()
+            })
+    }
+    else { None };
 
     styles.spacing.window_margin = saved_margin;
     ui.ctx().set_style(styles);
 
     if !should_close && was_opened {
-        ui.memory_mut(|mem| mem.open_popup(popup_id));
+        egui::Popup::open_id(ui.ctx(), popup_id);
     }
 
-    out.unwrap_or(false)
+    out.map_or(false, |inner_response| inner_response.inner)
 }
