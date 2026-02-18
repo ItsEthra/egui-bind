@@ -6,11 +6,11 @@ Library for showing key and pointer binds
 # Installation
 ```toml
 [dependencies]
-egui-bind = "0.16"
+egui-bind = "*" # Change for latest version
 
 # Or if you wish for your binds to be serializable
 # [dependencies]
-# egui-bind = { version = "0.16", features = ["serde"] }
+# egui-bind = { version = "*", features = ["serde"] }
 ```
 
 # Example
