@@ -1,5 +1,5 @@
 use eframe::{run_native, App, CreationContext, Frame, NativeOptions};
-use egui::{Context, Modifiers, Window};
+use egui::{Modifiers, Window};
 use egui_bind::{Bind, BindTarget, KeyOrPointer};
 
 type Binding = Option<(KeyOrPointer, Modifiers)>;
@@ -12,14 +12,14 @@ struct ExampleApp {
 }
 
 impl App for ExampleApp {
-    fn update(&mut self, ctx: &Context, _: &mut Frame) {
-        Window::new("Example").show(ctx, |ui| {
+    fn ui(&mut self, ui: &mut egui::Ui, _: &mut Frame) {
+        Window::new("Example").show(ui.ctx(), |ui| {
             // Order matters, If you were to put this if case
             // after the bind was shown, then it would trigger `self.count += 1`
             // on the same frame user assigned a new bind, which may not be the
             // desired behavior. But you can mitigate this by using the return
             // value of a `Bind::show` as shown below with `println!`.
-            if self.bind.pressed(ctx) {
+            if self.bind.pressed(ui.ctx()) {
                 self.count += 1;
                 self.check = !self.check;
             }

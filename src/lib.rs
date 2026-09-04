@@ -1,8 +1,9 @@
 #![doc = include_str!("../README.md")]
 #![warn(missing_docs)]
 
-use egui::{Align2, Event, FontId, Id, Key, Margin, PointerButton, Response, Sense, Ui, Widget};
-use std::hash::Hash;
+use egui::{
+    Align2, AsId, Event, FontId, Frame, Id, Key, PointerButton, Response, Sense, Ui, Widget,
+};
 
 mod target;
 pub use target::*;
@@ -17,7 +18,7 @@ pub struct Bind<'a, B: BindTarget> {
 
 impl<'a, B: BindTarget> Bind<'a, B> {
     /// Creates a new bind widget
-    pub fn new(id_source: impl Hash, value: &'a mut B) -> Self {
+    pub fn new(id_source: impl AsId, value: &'a mut B) -> Self {
         Self {
             id: Id::new(id_source),
             value,
@@ -101,7 +102,7 @@ impl<B: BindTarget> Widget for Bind<'_, B> {
 pub fn show_bind_popup(
     ui: &mut Ui,
     bind: &mut impl BindTarget,
-    popup_id_source: impl Hash,
+    popup_id_source: impl AsId,
     widget_response: &Response,
 ) -> bool {
     let popup_id = Id::new(popup_id_source);
@@ -113,17 +114,12 @@ pub fn show_bind_popup(
     let mut should_close = false;
     let was_opened = egui::Popup::is_id_open(ui.ctx(), popup_id);
 
-    let mut styles = ui.ctx().style().as_ref().clone();
-    let saved_margin = styles.spacing.window_margin;
-
-    styles.spacing.window_margin = Margin::same(0);
-    ui.ctx().set_style(styles.clone());
-
     let out = if was_opened {
         egui::Popup::from_response(&widget_response)
             .id(popup_id)
             .align(egui::RectAlign::BOTTOM)
             .close_behavior(egui::PopupCloseBehavior::CloseOnClickOutside)
+            .frame(Frame::popup(ui.style()).inner_margin(0))
             .show(|ui| {
                 let r = ui.add(Bind::new(popup_id.with("_bind"), bind));
 
@@ -134,11 +130,9 @@ pub fn show_bind_popup(
 
                 r.changed()
             })
-    }
-    else { None };
-
-    styles.spacing.window_margin = saved_margin;
-    ui.ctx().set_style(styles);
+    } else {
+        None
+    };
 
     if !should_close && was_opened {
         egui::Popup::open_id(ui.ctx(), popup_id);
